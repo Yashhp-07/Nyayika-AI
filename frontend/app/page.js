@@ -1,11 +1,11 @@
 import Image from "next/image";
+import FileUpload from "./components/FileUpload";
 
 export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <h2 className="text-3xl font-bold text-zinc-800 dark:text-zinc-200">
-        Welcome to Next.js!
-      </h2>
+      <FileUpload />
+      
     </div>
   );
 }
