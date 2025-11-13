@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main',
     'corsheaders',
+    'main',
 ]
 
 MIDDLEWARE = [
@@ -132,12 +132,6 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Add trusted origins for CSRF
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-]
-
 # Allow all headers and methods for development
 CORS_ALLOW_ALL_HEADERS = True
-CORS_ALLOW_ALL_METHODS = True
+

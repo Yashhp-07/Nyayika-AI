@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-console.log("Backend URL:", BACKEND_URL);
+// console.log(BACKEND_URL)
 
 const FileUpload = () => {
+  const router = useRouter();
   const [file, setFile] = useState(null);
   const [language, setLanguage] = useState("en");
+  const [extractedText, setExtractedText] = useState("");
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -39,12 +42,11 @@ const FileUpload = () => {
 
       if (!response.ok) {
         throw new Error("Failed to analyze the file");
-      } else {
-        alert("File analyzed successfully.");
       }
 
       const result = await response.json();
-      console.log("Analysis result:", result);
+      const encodedText = encodeURIComponent(result.extracted_text);
+      router.push(`/result/${encodedText}`);
     } catch (error) {
       console.error("Error analyzing file:", error);
       alert("An error occurred while analyzing the file.");
@@ -92,6 +94,22 @@ const FileUpload = () => {
       >
         Analyze
       </button>
+      {extractedText && (
+        <div
+          style={{
+            marginTop: "20px",
+            padding: "10px",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+            whiteSpace: "pre-wrap",
+            maxHeight: "200px",
+            overflowY: "auto",
+          }}
+        >
+          <h3>Extracted Text:</h3>
+          <p>{extractedText}</p>
+        </div>
+      )}
     </div>
   );
 };
