@@ -1,44 +1,67 @@
+import os
+import pdfplumber
+import pytesseract
+from PIL import Image
+from deep_translator import GoogleTranslator
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import fitz  # PyMuPDF
-
-
-def extract_text_from_pdf_bytes(pdf_bytes):
-    text = ""
-    with fitz.open(stream=pdf_bytes, filetype="pdf") as pdf_document:
-        for page in pdf_document:
-            text += page.get_text()
-    return text
-
-
-# Create your views here.
+import google.generativeai as genai
 
 def index(request):
-    return HttpResponse("Hello, world!")
+    if request.method == 'GET':
+        return HttpResponse("Home Page")
 
 @csrf_exempt
-def analyze(request):
-    if request.method == 'POST':
-        file = request.FILES.get('file')
-        language = request.POST.get('language')
+def analyze_file(request):
+    if request.method == 'GET':
+        return HttpResponse("Analyze page")
+    
+    if request.method != 'POST':
+        return JsonResponse({"error": "Only Post method allowed"}, status = 450)
+    
+    uploaded_file = request.FILES.get("file")
+    language = request.POST.get("language", "en")
 
-        if not file:
-            return JsonResponse({"message": "No file uploaded."}, status=400)
+    if not uploaded_file:
+        return JsonResponse({"error": "No File uploaded"}, status = 400)
+    
+    os.makedirs("media", exist_ok = True)
+    
+    temp_path = os.path.join("media", uploaded_file.name)
+    with open(temp_path, "wb+") as dest:
+        for chunk in uploaded_file.chunks():
+            dest.write(chunk)
 
-        try:
-            # Extract text from the uploaded PDF
-            pdf_bytes = file.read()
-            extracted_text = extract_text_from_pdf_bytes(pdf_bytes)
+    text = extract_text(temp_path)
+    print("Extracted Text: ", text)
+    os.remove(temp_path)
 
-            # Return the extracted text along with the language
-            return JsonResponse({
-                "message": "File analyzed successfully.",
-                "ok": "true",
-                "language": language,
-                "extracted_text": extracted_text
-            })
-        except Exception as e:
-            return JsonResponse({"message": f"Error analyzing file: {str(e)}"}, status=500)
-    else:
-        return JsonResponse({"message": "Invalid request method."}, status=400)
+    try:
+        translated_text = GoogleTranslator(source='en', target=language).translate(text)
+        print("Translated Text: ", translated_text)
+    except Exception as e:
+        return JsonResponse({"error": f"Translation failed: {str(e)}"}, status=500)
+
+    return JsonResponse({
+        "message" : "File Uploaded successfully",
+        "file_name" : uploaded_file.name,
+        "language": language,
+        "extracted_text": text[:1000],
+        "translated_text": translated_text[:1000]
+    })
+
+def extract_text(path):
+    try:
+        if path.endswith(".pdf"):
+            with pdfplumber.open(path) as pdf:
+                return "\n".join([page.extract_text() or "" for page in pdf.pages])
+        
+        elif path.endswith((".jpg", ".jpeg", ".png")):
+            image = Image.open(path)
+            return pytesseract.image_to_string(image)
+        else:
+            return "Unsupported File type"
+    except Exception as e:
+        return f"Error reading file: {str(e)}"
+

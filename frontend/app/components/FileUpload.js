@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+// console.log(BACKEND_URL)
 
 const FileUpload = () => {
   const [file, setFile] = useState(null);
@@ -36,10 +37,14 @@ const FileUpload = () => {
         method: "POST",
         body: formData,
       });
+      if(response.ok){
+        console.log("connection successful")
+      }
 
       if (!response.ok) {
         throw new Error("Failed to analyze the file");
       }
+      
 
       const result = await response.json();
       setAnalysisResult(result); // Save the result to state
