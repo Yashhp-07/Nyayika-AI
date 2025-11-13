@@ -1,17 +1,30 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState } from "react"; // Importing useState for interactive elements
+import { useState, useEffect } from "react"; // Importing useState and useEffect
 
 const ResultPage = () => {
   const params = useParams();
-  const extractedText = decodeURIComponent(params.id);
+  const [extractedText, setExtractedText] = useState("");
+  const [summary, setSummary] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [language, setLanguage] = useState("");
 
-  // Placeholder content for the new features
+  // Load data from localStorage on component mount
+  useEffect(() => {
+    const storedData = localStorage.getItem('documentResult');
+    if (storedData) {
+      const data = JSON.parse(storedData);
+      setExtractedText(data.extractedText || "");
+      setSummary(data.summary || "No summary available.");
+      setFileName(data.fileName || "");
+      setLanguage(data.language || "");
+    }
+  }, []);
+
+  // Placeholder content for translation (to be implemented)
   const translatedText =
     "This is a placeholder for the translated version of the extracted text, perhaps into English or another target language.";
-  const summary =
-    "A concise summary of the document would appear here. This section is key for quickly understanding the main points without reading the entire document.";
 
   const [chatInput, setChatInput] = useState("");
   const [chatHistory, setChatHistory] = useState([
@@ -42,6 +55,12 @@ const ResultPage = () => {
         <h1 className="text-4xl font-extrabold text-gray-800 mb-6 border-b-4 border-indigo-500 pb-2">
           📄 Document Analysis Result
         </h1>
+        
+        {fileName && (
+          <p className="text-sm text-gray-600 mb-4">
+            <span className="font-semibold">File:</span> {fileName} | <span className="font-semibold">Language:</span> {language}
+          </p>
+        )}
 
         {extractedText ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -78,9 +97,10 @@ const ResultPage = () => {
                 color="bg-yellow-50"
                 borderColor="border-yellow-500"
               >
-                <p className="text-gray-700 text-base leading-relaxed">
-                  {summary}
-                </p>
+                <div 
+                  className="text-gray-700 text-base leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: summary }}
+                />
               </SectionCard>
 
               {/* Chat with Document Box */}
