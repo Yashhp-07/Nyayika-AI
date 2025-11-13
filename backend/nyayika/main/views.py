@@ -4,8 +4,15 @@ import pytesseract
 from PIL import Image
 from deep_translator import GoogleTranslator
 from django.views.decorators.csrf import csrf_exempt
+import os
+import pdfplumber
+import pytesseract
+from PIL import Image
+from deep_translator import GoogleTranslator
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse
+import google.generativeai as genai
 import google.generativeai as genai
 
 def index(request):
@@ -34,21 +41,14 @@ def analyze_file(request):
             dest.write(chunk)
 
     text = extract_text(temp_path)
-    print("Extracted Text: ", text)
+    print("Extracted Text: ", text[:500])
     os.remove(temp_path)
-
-    try:
-        translated_text = GoogleTranslator(source='en', target=language).translate(text)
-        print("Translated Text: ", translated_text)
-    except Exception as e:
-        return JsonResponse({"error": f"Translation failed: {str(e)}"}, status=500)
 
     return JsonResponse({
         "message" : "File Uploaded successfully",
         "file_name" : uploaded_file.name,
         "language": language,
-        "extracted_text": text[:1000],
-        "translated_text": translated_text[:1000]
+        "extracted_text": text
     })
 
 def extract_text(path):
@@ -64,4 +64,4 @@ def extract_text(path):
             return "Unsupported File type"
     except Exception as e:
         return f"Error reading file: {str(e)}"
-
+        
