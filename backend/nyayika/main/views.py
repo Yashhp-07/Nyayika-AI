@@ -34,13 +34,14 @@ def analyze_file(request):
             dest.write(chunk)
 
     text = extract_text(temp_path)
+    print("Extracted Text: ", text[:500])
     os.remove(temp_path)
 
     return JsonResponse({
         "message" : "File Uploaded successfully",
         "file_name" : uploaded_file.name,
         "language": language,
-        "extracted_text": text[:1000]
+        "extracted_text": text
     })
 
 def extract_text(path):
