@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse
 import google.generativeai as genai
+from .utils import translate_text
 
 def index(request):
     if request.method == 'GET':
@@ -37,11 +38,15 @@ def analyze_file(request):
     print("Extracted Text: ", text[:500])
     os.remove(temp_path)
 
+    translated = translate_text(text, language)
+    print("Translated text: ",translated[:500])
+
     return JsonResponse({
         "message" : "File Uploaded successfully",
         "file_name" : uploaded_file.name,
         "language": language,
-        "extracted_text": text
+        "extracted_text": text,
+        "translated_text": translated
     })
 
 def extract_text(path):
