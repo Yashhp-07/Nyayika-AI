@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse
 from .utils import generate_summary
+from .utils import translate_text
 
 def index(request):
     if request.method == 'GET':
@@ -36,6 +37,9 @@ def analyze_file(request):
     print("Extracting text")
     os.remove(temp_path)
 
+    translated = translate_text(text, language)
+    print("Translated text: ",translated)
+
     # Generate summary
     summary = generate_summary(text)
     print("Generated Summary: ", summary)
@@ -45,7 +49,8 @@ def analyze_file(request):
         "file_name" : uploaded_file.name,
         "language": language,
         "extracted_text": text,
-        "summary": summary
+        "summary": summary,
+        "translated_text": translated
     })
 
 def extract_text(path):

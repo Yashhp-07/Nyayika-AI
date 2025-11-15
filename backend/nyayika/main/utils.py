@@ -4,8 +4,58 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-# Load environment variables
 load_dotenv()
+
+GEMINI_KEY = os.environ.get("GOOGLE_API_KEY")
+
+llm = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash",
+            google_api_key=GEMINI_KEY,
+            temperature=0.3
+)
+
+if not GEMINI_KEY:
+    print("Api key not found")
+else:
+    print("API key connected")
+
+def translate_text(text, target_language):
+    prompt = f"""
+    You are a professional legal translator specializing in accurate, faithful, and context-preserving translation.
+
+    YOUR TASK:
+    Translate the following legal document into the language: <b>{target_language}</b>
+
+    TRANSLATION RULES:
+    - Translate EXACTLY, without summarizing or shortening.
+    - Preserve all legal meaning, tone, terminology, structure, parties, dates, case numbers, and monetary amounts.
+    - Translate the text into clear, well-structured BULLET POINTS starting with the symbol •
+    - After each bullet point, insert <br><br> for clean formatting.
+    - Use <b>HTML bold tags</b> *very sparingly* and ONLY for:
+        • Case numbers  
+        • Party names  
+        • Important dates  
+        • Key legal sections  
+        • Monetary amounts  
+    - DO NOT bold random nouns or common words.
+    - DO NOT introduce new content or assumptions.
+    - Maintain the natural paragraph flow—convert each logical idea into a bullet point.
+
+    OUTPUT FORMAT (must follow exactly):
+    • First translated point with a carefully placed <b>critical detail</b>.<br><br>
+    • Second translated point with another <b>important element</b>.<br><br>
+    • Third translated point, etc.<br><br>
+
+    TEXT TO TRANSLATE:
+    {text}
+
+    Now produce the FULL translation in bullet-point format following all rules above:
+    """
+    translated_text = llm.invoke(prompt)
+    return translated_text.content
+
+
+
 
 def generate_summary(text: str) -> str:
     print("Generating summary...")
@@ -19,17 +69,10 @@ def generate_summary(text: str) -> str:
         A summary of the text
     """
     try:
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            return "Error: GOOGLE_API_KEY not found in environment variables"
-        
-        # Initialize Gemini 2.5 Flash model
-        llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",
-            google_api_key=api_key,
-            temperature=0.3
-        )
-        
+        # api_key = os.getenv("GOOGLE_API_KEY")
+        # if not api_key:
+        #     return "Error: GOOGLE_API_KEY not found in environment variables"
+                
         # Create prompt template
         prompt_template = PromptTemplate(
             input_variables=["text"],

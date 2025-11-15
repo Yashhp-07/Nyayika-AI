@@ -9,6 +9,7 @@ const ResultPage = () => {
   const [summary, setSummary] = useState("");
   const [fileName, setFileName] = useState("");
   const [language, setLanguage] = useState("");
+  const [translatedText, setTranslatedText] = useState("");
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -16,6 +17,7 @@ const ResultPage = () => {
     if (storedData) {
       const data = JSON.parse(storedData);
       setExtractedText(data.extractedText || "");
+      setTranslatedText(data.translatedText || "");
       setSummary(data.summary || "No summary available.");
       setFileName(data.fileName || "");
       setLanguage(data.language || "");
@@ -23,8 +25,8 @@ const ResultPage = () => {
   }, []);
 
   // Placeholder content for translation (to be implemented)
-  const translatedText =
-    "This is a placeholder for the translated version of the extracted text, perhaps into English or another target language.";
+  // const translatedText =
+  //   "This is a placeholder for the translated version of the extracted text, perhaps into English or another target language.";
 
   const [chatInput, setChatInput] = useState("");
   const [chatHistory, setChatHistory] = useState([
@@ -83,9 +85,11 @@ const ResultPage = () => {
                 color="bg-green-50"
                 borderColor="border-green-500"
               >
-                <p className="text-gray-700 text-base leading-relaxed">
-                  {translatedText}
-                </p>
+                <div 
+                  className="text-gray-700 text-base leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: translatedText }}
+                />
+
               </SectionCard>
             </div>
 

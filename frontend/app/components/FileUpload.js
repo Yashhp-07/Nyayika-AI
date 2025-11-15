@@ -75,6 +75,7 @@ const FileUpload = () => {
       // Store the result data in localStorage to pass to the result page
       localStorage.setItem('documentResult', JSON.stringify({
         extractedText: result.extracted_text,
+        translatedText: result.translated_text,
         summary: result.summary,
         fileName: result.file_name,
         language: result.language
