@@ -2,11 +2,10 @@ import os
 import pdfplumber
 import pytesseract
 from PIL import Image
-from deep_translator import GoogleTranslator
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse
-import google.generativeai as genai
+from .utils import generate_summary
 from .utils import translate_text
 
 def index(request):
@@ -35,17 +34,22 @@ def analyze_file(request):
             dest.write(chunk)
 
     text = extract_text(temp_path)
-    print("Extracted Text: ", text[:500])
+    print("Extracting text")
     os.remove(temp_path)
 
     translated = translate_text(text, language)
-    print("Translated text: ",translated[:500])
+    print("Translated text: ",translated)
 
+    # Generate summary
+    summary = generate_summary(text)
+    print("Generated Summary: ", summary)
+    
     return JsonResponse({
         "message" : "File Uploaded successfully",
         "file_name" : uploaded_file.name,
         "language": language,
         "extracted_text": text,
+        "summary": summary,
         "translated_text": translated
     })
 
@@ -62,4 +66,4 @@ def extract_text(path):
             return "Unsupported File type"
     except Exception as e:
         return f"Error reading file: {str(e)}"
-        
+

@@ -69,10 +69,20 @@ const FileUpload = () => {
       
 
       const result = await response.json();
-
-      // Use the logic to navigate to the result page with encoded text
-      const encodedText = encodeURIComponent(result.extracted_text);
-      router.push(`/result/${encodedText}`);
+      console.log("extracted text:", result.extracted_text);
+      console.log("summary:", result.summary);
+      
+      // Store the result data in localStorage to pass to the result page
+      localStorage.setItem('documentResult', JSON.stringify({
+        extractedText: result.extracted_text,
+        translatedText: result.translated_text,
+        summary: result.summary,
+        fileName: result.file_name,
+        language: result.language
+      }));
+      
+      // Navigate to the result page
+      router.push(`/result/${Date.now()}`);
     } catch (error) {
       console.error("Error analyzing file:", error);
       setUploadError(`❌ Analysis failed: ${error.message}`);
