@@ -55,8 +55,8 @@ const FileUpload = () => {
         method: "POST",
         body: formData,
       });
-      if(response.ok){
-        console.log("connection successful")
+      if (response.ok) {
+        console.log("connection successful");
       }
 
       if (!response.ok) {
@@ -66,21 +66,23 @@ const FileUpload = () => {
           .catch(() => ({ message: "Server response error." }));
         throw new Error(errorData.message || "Failed to analyze the file.");
       }
-      
 
       const result = await response.json();
       console.log("extracted text:", result.extracted_text);
       console.log("summary:", result.summary);
-      
+
       // Store the result data in localStorage to pass to the result page
-      localStorage.setItem('documentResult', JSON.stringify({
-        extractedText: result.extracted_text,
-        translatedText: result.translated_text,
-        summary: result.summary,
-        fileName: result.file_name,
-        language: result.language
-      }));
-      
+      localStorage.setItem(
+        "documentResult",
+        JSON.stringify({
+          extractedText: result.extracted_text,
+          translatedText: result.translated_text,
+          summary: result.summary,
+          fileName: result.file_name,
+          language: result.language,
+        })
+      );
+
       // Navigate to the result page
       router.push(`/result/${Date.now()}`);
     } catch (error) {
@@ -93,7 +95,7 @@ const FileUpload = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white shadow-2xl rounded-xl p-8 space-y-6 border border-indigo-200">
+      <div className="w-full max-w-md mx-auto bg-white shadow-2xl rounded-xl p-8 space-y-6 border border-indigo-200">
         <h2 className="text-3xl font-extrabold text-gray-900 text-center flex items-center justify-center">
           <svg
             className="w-8 h-8 mr-2 text-indigo-600"
