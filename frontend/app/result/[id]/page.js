@@ -9,7 +9,9 @@ const ResultPage = () => {
   const [summary, setSummary] = useState("");
   const [fileName, setFileName] = useState("");
   const [language, setLanguage] = useState("");
-  const [translatedText, setTranslatedText] = useState("");
+  const [fullTranslatedText, setFullTranslatedText] = useState("");
+  const [streamedTranslatedText, setStreamedTranslatedText] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -17,12 +19,32 @@ const ResultPage = () => {
     if (storedData) {
       const data = JSON.parse(storedData);
       setExtractedText(data.extractedText || "");
-      setTranslatedText(data.translatedText || "");
+      setFullTranslatedText(data.translatedText || "");
       setSummary(data.summary || "No summary available.");
       setFileName(data.fileName || "");
       setLanguage(data.language || "");
+      setIsStreaming(true);
     }
   }, []);
+
+  useEffect(()=> {
+    if(!isStreaming || !fullTranslatedText ) return;
+
+    const characters = fullTranslatedText.split('');
+    let index = 0;
+
+    const streamCharacter = () => {
+      if (index < characters.length){
+        setStreamedTranslatedText((prevText) => prevText + characters[index]);
+        index++;
+        setTimeout(streamCharacter, 10); 
+      }
+      else{
+        setIsStreaming(false);
+      }
+    };
+    streamCharacter();   
+  }, [fullTranslatedText, isStreaming]);
 
   // Placeholder content for translation (to be implemented)
   // const translatedText =
@@ -85,11 +107,9 @@ const ResultPage = () => {
                 color="bg-green-50"
                 borderColor="border-green-500"
               >
-                <div 
-                  className="text-gray-700 text-base leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: translatedText }}
+                <div className="text-gray-700 text-base leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: streamedTranslatedText }}
                 />
-
               </SectionCard>
             </div>
 
