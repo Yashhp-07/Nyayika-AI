@@ -1,12 +1,14 @@
 import os
 import pdfplumber
 import pytesseract
+import json
 from PIL import Image
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect
-from django.http import HttpResponse,JsonResponse
-from .utils import generate_summary
-from .utils import translate_text
+from django.http import HttpResponse,JsonResponse, StreamingHttpResponse
+from .utils import generate_summary, generate_summary_stream
+from .utils import translate_text, translate_text_stream
+
 
 def index(request):
     if request.method == 'GET':
@@ -37,20 +39,19 @@ def analyze_file(request):
     print("Extracting text")
     os.remove(temp_path)
 
-    translated = translate_text(text, language)
-    print("Translated text: ",translated)
+    # Translation will be streamed separately from frontend
+    # translated = translate_text(text, language)
+    # print("Translated text: ",translated)
 
-    # Generate summary
-    summary = generate_summary(text)
-    print("Generated Summary: ", summary)
+    # Summary will be streamed separately from frontend
+    # summary = generate_summary(text)
+    # print("Generated Summary: ", summary)
     
     return JsonResponse({
         "message" : "File Uploaded successfully",
         "file_name" : uploaded_file.name,
         "language": language,
-        "extracted_text": text,
-        "summary": summary,
-        "translated_text": translated
+        "extracted_text": text
     })
 
 def extract_text(path):
@@ -67,3 +68,53 @@ def extract_text(path):
     except Exception as e:
         return f"Error reading file: {str(e)}"
 
+@csrf_exempt
+def stream_summary(request):
+    """Endpoint to stream summary in chunks"""
+    if request.method != 'POST':
+        return JsonResponse({"error": "Only POST method allowed"}, status=405)
+    
+    text = request.POST.get('text')
+    
+    if not text:
+        return JsonResponse({"error": "No text provided"}, status=400)
+
+    def event_stream():
+        try:
+            for chunk in generate_summary_stream(text):
+                # Send as server-sent events
+                yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+            yield f"data: {json.dumps({'done': True})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+    
+    response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    response['Cache-Control'] = 'no-cache'
+    response['X-Accel-Buffering'] = 'no'  # Disable buffering for Nginx
+    return response
+
+@csrf_exempt
+def stream_translation(request):
+    """Endpoint to stream translation in chunks"""
+    if request.method != 'POST':
+        return JsonResponse({"error": "Only POST method allowed"}, status=405)
+    
+    text = request.POST.get('text')
+    language = request.POST.get('language', 'en')
+    
+    if not text:
+        return JsonResponse({"error": "No text provided"}, status=400)
+
+    def event_stream():
+        try:
+            for chunk in translate_text_stream(text, language):
+                # Send as server-sent events
+                yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+            yield f"data: {json.dumps({'done': True})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+    
+    response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    response['Cache-Control'] = 'no-cache'
+    response['X-Accel-Buffering'] = 'no'  # Disable buffering for Nginx
+    return response

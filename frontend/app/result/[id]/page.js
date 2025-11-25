@@ -20,11 +20,13 @@ const ResultPage = () => {
   const params = useParams();
   const [extractedText, setExtractedText] = useState("");
   const [summary, setSummary] = useState("");
+  const [translatedText, setTranslatedText] = useState("");
   const [fileName, setFileName] = useState("");
   const [language, setLanguage] = useState("");
-  const [fullTranslatedText, setFullTranslatedText] = useState("");
-  const [streamedTranslatedText, setStreamedTranslatedText] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
+  const [isStreamingSummary, setIsStreamingSummary] = useState(false);
+  const [isStreamingTranslation, setIsStreamingTranslation] = useState(false);
+  const [summaryError, setSummaryError] = useState("");
+  const [translationError, setTranslationError] = useState("");
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -32,35 +34,127 @@ const ResultPage = () => {
     if (storedData) {
       const data = JSON.parse(storedData);
       setExtractedText(data.extractedText || "");
-      setFullTranslatedText(data.translatedText || "");
-      setSummary(data.summary || "No summary available.");
       setFileName(data.fileName || "");
       setLanguage(data.language || "");
-      setIsStreaming(true);
+      
+      // Start streaming both summary and translation from backend
+      if (data.extractedText) {
+        streamSummaryFromBackend(data.extractedText);
+        streamTranslationFromBackend(data.extractedText, data.language);
+      }
     }
   }, []);
 
-  useEffect(() => {
-    if (!isStreaming || !fullTranslatedText) return;
+  // Stream summary from backend using Server-Sent Events
+  const streamSummaryFromBackend = async (text) => {
+    setIsStreamingSummary(true);
+    setSummary("");
+    setSummaryError("");
 
-    const characters = fullTranslatedText.split("");
-    let index = 0;
+    try {
+      const formData = new FormData();
+      formData.append('text', text);
 
-    const streamCharacter = () => {
-      if (index < characters.length) {
-        setStreamedTranslatedText((prevText) => prevText + characters[index]);
-        index++;
-        setTimeout(streamCharacter, 10);
-      } else {
-        setIsStreaming(false);
+      const response = await fetch('http://localhost:8000/stream_summary/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
-    streamCharacter();
-  }, [fullTranslatedText, isStreaming]);
 
-  // Placeholder content for translation (to be implemented)
-  // const translatedText =
-  //   "This is a placeholder for the translated version of the extracted text, perhaps into English or another target language.";
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.chunk) {
+                setSummary((prev) => prev + data.chunk);
+              } else if (data.done) {
+                setIsStreamingSummary(false);
+              } else if (data.error) {
+                setSummaryError(data.error);
+                setIsStreamingSummary(false);
+              }
+            } catch (e) {
+              console.error('Error parsing SSE data:', e);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error streaming summary:', error);
+      setSummaryError('Failed to load summary. Please try again.');
+      setIsStreamingSummary(false);
+    }
+  };
+
+  // Stream translation from backend using Server-Sent Events
+  const streamTranslationFromBackend = async (text, targetLanguage) => {
+    setIsStreamingTranslation(true);
+    setTranslatedText("");
+    setTranslationError("");
+
+    try {
+      const formData = new FormData();
+      formData.append('text', text);
+      formData.append('language', targetLanguage);
+
+      const response = await fetch('http://localhost:8000/stream_translation/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.chunk) {
+                setTranslatedText((prev) => prev + data.chunk);
+              } else if (data.done) {
+                setIsStreamingTranslation(false);
+              } else if (data.error) {
+                setTranslationError(data.error);
+                setIsStreamingTranslation(false);
+              }
+            } catch (e) {
+              console.error('Error parsing SSE data:', e);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error streaming translation:', error);
+      setTranslationError('Failed to load translation. Please try again.');
+      setIsStreamingTranslation(false);
+    }
+  };
 
   const [chatInput, setChatInput] = useState("");
   const [chatHistory, setChatHistory] = useState([
@@ -187,45 +281,31 @@ const ResultPage = () => {
                 </div>
               </div>
 
-              {/* Translated Text Section */}
-              <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
-                <div
-                  className="px-6 py-4 border-b-2"
-                  style={{
-                    backgroundColor: `${SECONDARY_COLORS.ashokGreen}10`,
-                    borderBottomColor: SECONDARY_COLORS.ashokGreen,
-                  }}
-                >
-                  <div className="flex items-center space-x-3">
-                    <svg
-                      className="w-6 h-6"
-                      style={{ color: SECONDARY_COLORS.ashokGreen }}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
-                      />
+              {/* Translated Text Box */}
+              <SectionCard
+                title="🌐 Translated Text"
+                color="bg-green-50"
+                borderColor="border-green-500"
+              >
+                {isStreamingTranslation && !translatedText && (
+                  <div className="flex items-center text-gray-500 text-sm">
+                    <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <h2
-                      className="text-xl font-bold"
-                      style={{ color: SECONDARY_COLORS.ashokGreen }}
-                    >
-                      Translated Text
-                    </h2>
+                    Translating text...
                   </div>
-                </div>
-                <div className="p-6">
-                  <div
-                    className="text-gray-700 text-base leading-relaxed font-serif"
-                    dangerouslySetInnerHTML={{ __html: streamedTranslatedText }}
+                )}
+                {translationError && (
+                  <div className="text-red-600 text-sm">{translationError}</div>
+                )}
+                {translatedText && (
+                  <div 
+                    className="text-gray-700 text-base leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: translatedText }}
                   />
-                </div>
-              </div>
+                )}
+              </SectionCard>
             </div>
 
             {/* Right Column: Summary and Chat */}
@@ -275,31 +355,45 @@ const ResultPage = () => {
                 className="bg-white shadow-lg rounded-xl overflow-hidden border-2"
                 style={{ borderColor: SECONDARY_COLORS.constitutionMaroon }}
               >
-                <div
-                  className="px-6 py-4"
-                  style={{
-                    backgroundColor: SECONDARY_COLORS.constitutionMaroon,
-                  }}
-                >
-                  <div className="flex items-center space-x-3">
-                    <svg
-                      className="w-6 h-6 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                      />
+                {isStreamingSummary && !summary && (
+                  <div className="flex items-center text-gray-500 text-sm">
+                    <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <h2 className="text-xl font-bold text-white">
-                      Chat with Document
-                    </h2>
+                    Generating summary...
                   </div>
-                </div>
+                )}
+                {summaryError && (
+                  <div className="text-red-600 text-sm">{summaryError}</div>
+                )}
+                {summary && (
+                  <div 
+                    className="text-gray-700 text-base leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: summary }}
+                  />
+                )}
+              </SectionCard>
+
+              {/* Chat with Document Box */}
+              <div className="bg-white shadow-xl rounded-lg p-5 border border-red-200">
+                <h3 className="text-xl font-semibold text-red-600 mb-4 flex items-center">
+                  <svg
+                    className="w-6 h-6 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                    ></path>
+                  </svg>
+                  Chat with Document
+                </h3>
 
                 <div className="p-4">
                   {/* Chat History */}
