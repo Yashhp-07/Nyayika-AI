@@ -92,7 +92,6 @@ const FileUpload = () => {
       setIsUploading(false);
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md mx-auto bg-white shadow-2xl rounded-xl p-8 space-y-6 border border-indigo-200">

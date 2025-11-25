@@ -3,11 +3,5 @@
 __pycache__/
 
 # Ignore virtual environment
-<<<<<<< HEAD
 env
-=======
-env/
-.env
-
->>>>>>> 4d2db2451f347fe1f312a148fe49d30423e6d574
 .env
