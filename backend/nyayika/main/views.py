@@ -8,6 +8,8 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse,JsonResponse, StreamingHttpResponse
 from .utils import generate_summary, generate_summary_stream
 from .utils import translate_text, translate_text_stream
+from .utils import query_constitution, generate_chat_response_stream
+from .utils import query_writer
 
 
 def index(request):
@@ -118,3 +120,69 @@ def stream_translation(request):
     response['Cache-Control'] = 'no-cache'
     response['X-Accel-Buffering'] = 'no'  # Disable buffering for Nginx
     return response
+
+@csrf_exempt
+def chatbot(request):
+    """Endpoint to handle chatbot queries with ChromaDB RAG"""
+    if request.method != 'POST':
+        return JsonResponse({"error": "Only POST method allowed"}, status=405)
+    
+    try:
+        # Parse JSON body
+        data = json.loads(request.body)
+        question = data.get('question', '')
+        
+        print("Received question: ", question)
+        
+        if not question:
+            return JsonResponse({"error": "No question provided"}, status=400)
+        
+        # Rewrite the question
+        try:
+            rewritten_question = query_writer(question)
+            print("Rewritten question: ", rewritten_question)
+        except Exception as e:
+            print(f"Error in query_writer: {str(e)}")
+            return JsonResponse({"error": f"Query rewriting failed: {str(e)}"}, status=500)
+        
+        # Query ChromaDB for relevant context
+        try:
+            query_result = query_constitution(rewritten_question, n_results=3)
+            print("Knowledge base query result: ", query_result)
+        except Exception as e:
+            print(f"Error in query_constitution: {str(e)}")
+            return JsonResponse({"error": f"Database query failed: {str(e)}"}, status=500)
+        
+        if not query_result.get('success'):
+            return JsonResponse({
+                "error": query_result.get('error', 'Failed to query knowledge base')
+            }, status=500)
+        
+        # Stream the AI response
+        def event_stream():
+            try:
+                # First, send the context articles
+                yield f"data: {json.dumps({'type': 'context', 'articles': query_result['results']})}\n\n"
+                
+                # Then stream the AI response
+                for chunk in generate_chat_response_stream(rewritten_question, query_result['results']):
+                    yield f"data: {json.dumps({'type': 'response', 'chunk': chunk})}\n\n"
+                
+                yield f"data: {json.dumps({'type': 'done', 'done': True})}\n\n"
+            except Exception as e:
+                print(f"Error in event_stream: {str(e)}")
+                yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+        
+        response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+        response['Cache-Control'] = 'no-cache'
+        response['X-Accel-Buffering'] = 'no'
+        return response
+        
+    except json.JSONDecodeError as e:
+        print(f"JSON decode error: {str(e)}")
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        print(f"Unexpected error in chatbot view: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({"error": str(e)}, status=500)

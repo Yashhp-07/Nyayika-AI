@@ -93,11 +93,11 @@ const FileUpload = () => {
     }
   };
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md mx-auto bg-white shadow-2xl rounded-xl p-8 space-y-6 border border-indigo-200">
-        <h2 className="text-3xl font-extrabold text-gray-900 text-center flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-3 sm:p-4">
+      <div className="w-full max-w-md mx-auto bg-white shadow-2xl rounded-xl p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 border border-indigo-200">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 text-center flex items-center justify-center">
           <svg
-            className="w-8 h-8 mr-2 text-indigo-600"
+            className="w-6 h-6 sm:w-8 sm:h-8 mr-2 text-indigo-600"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -113,7 +113,7 @@ const FileUpload = () => {
           PDF Document Analyzer
         </h2>
 
-        <p className="text-center text-gray-500">
+        <p className="text-center text-sm sm:text-base text-gray-500">
           Upload a PDF file and select the document's language for analysis.
         </p>
 
@@ -128,7 +128,7 @@ const FileUpload = () => {
           <div className="flex items-center justify-center w-full">
             <label
               htmlFor="file-upload"
-              className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition duration-300 ${
+              className={`flex flex-col items-center justify-center w-full h-28 sm:h-32 border-2 border-dashed rounded-lg cursor-pointer transition duration-300 ${
                 file
                   ? "border-green-500 bg-green-50 hover:bg-green-100"
                   : "border-gray-300 bg-gray-50 hover:bg-gray-100"
@@ -138,7 +138,7 @@ const FileUpload = () => {
                 {file ? (
                   <>
                     <svg
-                      className="w-8 h-8 mb-2 text-green-500"
+                      className="w-6 h-6 sm:w-8 sm:h-8 mb-2 text-green-500"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -151,17 +151,17 @@ const FileUpload = () => {
                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                       ></path>
                     </svg>
-                    <p className="mb-2 text-sm text-green-600 font-semibold">
+                    <p className="mb-2 text-xs sm:text-sm text-green-600 font-semibold">
                       File selected:
                     </p>
-                    <p className="text-xs text-green-500 truncate w-40">
+                    <p className="text-xs text-green-500 truncate w-32 sm:w-40 px-2">
                       {file.name}
                     </p>
                   </>
                 ) : (
                   <>
                     <svg
-                      className="w-8 h-8 mb-3 text-gray-400"
+                      className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3 text-gray-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -174,7 +174,7 @@ const FileUpload = () => {
                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 014 5H5a2 2 0 00-2 2v1h1a2 2 0 012-2h4a2 2 0 012 2v3a2 2 0 002 2h3.5"
                       ></path>
                     </svg>
-                    <p className="mb-2 text-sm text-gray-500">
+                    <p className="mb-1 sm:mb-2 text-xs sm:text-sm text-gray-500">
                       <span className="font-semibold">Click to upload</span> or
                       drag and drop
                     </p>
@@ -205,7 +205,7 @@ const FileUpload = () => {
             id="language-select"
             value={language}
             onChange={handleLanguageChange}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm appearance-none"
+            className="mt-1 block w-full pl-3 pr-10 py-2 sm:py-2.5 text-sm sm:text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md shadow-sm appearance-none"
           >
             <option value="en">English (en)</option>
             <option value="hi">Hindi (hi)</option>
@@ -219,7 +219,7 @@ const FileUpload = () => {
         <button
           onClick={handleAnalyze}
           disabled={isUploading || !file}
-          className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white transition duration-300 ${
+          className={`w-full flex justify-center py-2.5 sm:py-3 px-4 border border-transparent rounded-md shadow-sm text-base sm:text-lg font-medium text-white transition duration-300 ${
             isUploading || !file
               ? "bg-indigo-300 cursor-not-allowed"
               : "bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -257,7 +257,7 @@ const FileUpload = () => {
         {/* --- Error Display --- */}
         {uploadError && (
           <div
-            className="p-3 text-sm text-red-700 bg-red-100 rounded-lg"
+            className="p-3 text-xs sm:text-sm text-red-700 bg-red-100 rounded-lg"
             role="alert"
           >
             {uploadError}

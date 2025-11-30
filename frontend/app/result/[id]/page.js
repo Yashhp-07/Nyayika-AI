@@ -184,12 +184,12 @@ const ResultPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
         {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 mb-4">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
             <svg
-              className="w-10 h-10"
+              className="w-8 h-8 sm:w-10 sm:h-10"
               style={{ color: PRIMARY_COLORS.saffronGold }}
               fill="none"
               stroke="currentColor"
@@ -203,7 +203,7 @@ const ResultPage = () => {
               />
             </svg>
             <h1
-              className="text-3xl sm:text-4xl lg:text-5xl font-bold"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold"
               style={{ color: PRIMARY_COLORS.justiceNavy }}
             >
               Document Analysis Results
@@ -212,11 +212,11 @@ const ResultPage = () => {
 
           {fileName && (
             <div
-              className="inline-flex items-center space-x-3 bg-white px-4 py-3 rounded-lg shadow-md border-l-4"
+              className="inline-flex items-center space-x-2 sm:space-x-3 bg-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg shadow-md border-l-4"
               style={{ borderLeftColor: PRIMARY_COLORS.saffronGold }}
             >
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
                 style={{ color: PRIMARY_COLORS.saffronGold }}
                 fill="none"
                 stroke="currentColor"
@@ -229,11 +229,11 @@ const ResultPage = () => {
                   d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
                 />
               </svg>
-              <div>
-                <span className="text-sm font-semibold text-gray-700">
+              <div className="min-w-0">
+                <span className="text-xs sm:text-sm font-semibold text-gray-700 block truncate">
                   {fileName}
                 </span>
-                <span className="text-xs text-gray-500 ml-3">
+                <span className="text-xs text-gray-500 block sm:inline sm:ml-3">
                   Language: {language.toUpperCase()}
                 </span>
               </div>
@@ -242,21 +242,21 @@ const ResultPage = () => {
         </div>
 
         {extractedText ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Left Column: Main Content - Extracted & Translated Text */}
             <div className="lg:col-span-2 space-y-6">
               {/* Extracted Text Section */}
               <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
                 <div
-                  className="px-6 py-4 border-b-2"
+                  className="px-4 sm:px-6 py-3 sm:py-4 border-b-2"
                   style={{
                     backgroundColor: `${PRIMARY_COLORS.justiceNavy}10`,
                     borderBottomColor: PRIMARY_COLORS.justiceNavy,
                   }}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
                     <svg
-                      className="w-6 h-6"
+                      className="w-5 h-5 sm:w-6 sm:h-6"
                       style={{ color: PRIMARY_COLORS.justiceNavy }}
                       fill="none"
                       stroke="currentColor"
@@ -270,15 +270,15 @@ const ResultPage = () => {
                       />
                     </svg>
                     <h2
-                      className="text-xl font-bold"
+                      className="text-lg sm:text-xl font-bold"
                       style={{ color: PRIMARY_COLORS.justiceNavy }}
                     >
                       Original Extracted Text
                     </h2>
                   </div>
                 </div>
-                <div className="p-6">
-                  <div className="max-h-96 overflow-y-auto text-gray-700 text-base leading-relaxed whitespace-pre-wrap font-serif">
+                <div className="p-4 sm:p-6">
+                  <div className="max-h-96 overflow-y-auto text-gray-700 text-sm sm:text-base leading-relaxed whitespace-pre-wrap font-serif">
                     {extractedText}
                   </div>
                 </div>
@@ -287,15 +287,15 @@ const ResultPage = () => {
               {/* Translated Text Section */}
               <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
                 <div
-                  className="px-6 py-4 border-b-2"
+                  className="px-4 sm:px-6 py-3 sm:py-4 border-b-2"
                   style={{
                     backgroundColor: `${SECONDARY_COLORS.ashokGreen}10`,
                     borderBottomColor: SECONDARY_COLORS.ashokGreen,
                   }}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
                     <svg
-                      className="w-6 h-6"
+                      className="w-5 h-5 sm:w-6 sm:h-6"
                       style={{ color: SECONDARY_COLORS.ashokGreen }}
                       fill="none"
                       stroke="currentColor"
@@ -309,7 +309,7 @@ const ResultPage = () => {
                       />
                     </svg>
                     <h2
-                      className="text-xl font-bold"
+                      className="text-lg sm:text-xl font-bold"
                       style={{ color: SECONDARY_COLORS.ashokGreen }}
                     >
                       Translated Text
@@ -349,7 +349,7 @@ const ResultPage = () => {
                   )}
                   {translatedText && (
                     <div
-                      className="text-gray-700 text-base leading-relaxed font-serif"
+                      className="max-h-280 overflow-y-auto text-gray-700 text-base leading-relaxed whitespace-pre-wrap font-serif"
                       dangerouslySetInnerHTML={{ __html: translatedText }}
                     />
                   )}
@@ -362,15 +362,15 @@ const ResultPage = () => {
               {/* Summary Section */}
               <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
                 <div
-                  className="px-6 py-4 border-b-2"
+                  className="px-4 sm:px-6 py-3 sm:py-4 border-b-2"
                   style={{
                     backgroundColor: `${PRIMARY_COLORS.saffronGold}10`,
                     borderBottomColor: PRIMARY_COLORS.saffronGold,
                   }}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
                     <svg
-                      className="w-6 h-6"
+                      className="w-5 h-5 sm:w-6 sm:h-6"
                       style={{ color: PRIMARY_COLORS.saffronGold }}
                       fill="none"
                       stroke="currentColor"
@@ -384,7 +384,7 @@ const ResultPage = () => {
                       />
                     </svg>
                     <h2
-                      className="text-xl font-bold"
+                      className="text-lg sm:text-xl font-bold"
                       style={{ color: PRIMARY_COLORS.saffronGold }}
                     >
                       Key Summary
@@ -435,14 +435,14 @@ const ResultPage = () => {
                 style={{ borderColor: SECONDARY_COLORS.constitutionMaroon }}
               >
                 <div
-                  className="px-6 py-4"
+                  className="px-4 sm:px-6 py-3 sm:py-4"
                   style={{
                     backgroundColor: SECONDARY_COLORS.constitutionMaroon,
                   }}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
                     <svg
-                      className="w-6 h-6 text-white"
+                      className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -454,24 +454,24 @@ const ResultPage = () => {
                         d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
                       />
                     </svg>
-                    <h2 className="text-xl font-bold text-white">
+                    <h2 className="text-lg sm:text-xl font-bold text-white">
                       Chat with Document
                     </h2>
                   </div>
                 </div>
 
-                <div className="p-4">
+                <div className="p-3 sm:p-4">
                   {/* Chat History */}
-                  <div className="h-64 overflow-y-auto mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="h-48 sm:h-64 overflow-y-auto mb-3 sm:mb-4 p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
                     {chatHistory.map((message, index) => (
                       <div
                         key={index}
-                        className={`mb-3 ${
+                        className={`mb-2 sm:mb-3 ${
                           message.role === "user" ? "text-right" : "text-left"
                         }`}
                       >
                         <div
-                          className={`inline-block max-w-[85%] p-3 rounded-lg text-sm shadow-sm ${
+                          className={`inline-block max-w-[90%] sm:max-w-[85%] p-2 sm:p-3 rounded-lg text-xs sm:text-sm shadow-sm ${
                             message.role === "user"
                               ? "text-white"
                               : "bg-white text-gray-800 border"
@@ -500,7 +500,7 @@ const ResultPage = () => {
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
                       placeholder="Ask about the document..."
-                      className="flex-grow p-3 border-2 border-gray-300 rounded-lg text-sm focus:outline-none transition-colors"
+                      className="flex-grow p-2 sm:p-3 border-2 border-gray-300 rounded-lg text-xs sm:text-sm focus:outline-none transition-colors"
                       style={{
                         focusBorderColor: SECONDARY_COLORS.constitutionMaroon,
                       }}
@@ -514,7 +514,7 @@ const ResultPage = () => {
                     />
                     <button
                       type="submit"
-                      className="px-4 py-3 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                      className="px-3 sm:px-4 py-2 sm:py-3 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-xs sm:text-sm"
                       style={{
                         backgroundColor: SECONDARY_COLORS.constitutionMaroon,
                       }}
@@ -527,9 +527,9 @@ const ResultPage = () => {
             </div>
           </div>
         ) : (
-          <div className="mt-10 p-12 bg-white shadow-lg rounded-xl border border-gray-200 text-center">
+          <div className="mt-6 sm:mt-10 p-6 sm:p-12 bg-white shadow-lg rounded-xl border border-gray-200 text-center">
             <svg
-              className="w-20 h-20 mx-auto mb-4 text-gray-400"
+              className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -542,12 +542,12 @@ const ResultPage = () => {
               />
             </svg>
             <p
-              className="text-2xl font-semibold mb-2"
+              className="text-xl sm:text-2xl font-semibold mb-2"
               style={{ color: PRIMARY_COLORS.justiceNavy }}
             >
               No Document Data Available
             </p>
-            <p className="text-gray-500">
+            <p className="text-sm sm:text-base text-gray-500">
               Please upload and analyze a document to see results here.
             </p>
           </div>

@@ -32,23 +32,23 @@ export default function Footer() {
 
   return (
     <footer
-      className="text-white p-6 text-center border-t-4"
+      className="text-white p-4 sm:p-6 text-center border-t-4"
       style={{
         backgroundColor: PRIMARY_COLORS.justiceNavy,
         borderTopColor: PRIMARY_COLORS.saffronGold,
       }}
     >
-      <div className="max-w-6xl mx-auto">
-        <div className="text-lg font-medium">
+      <div className="max-w-6xl mx-auto px-2 sm:px-4">
+        <div className="text-base sm:text-lg font-medium">
           &copy; {new Date().getFullYear()} Nyayika AI. All rights reserved.
         </div>
         <div
-          className="mt-3 text-base italic leading-relaxed"
+          className="mt-2 sm:mt-3 text-sm sm:text-base italic leading-relaxed px-2"
           style={{ color: SECONDARY_COLORS.parchmentCream }}
         >
           {quote}
         </div>
-        <div className="mt-4 flex justify-center space-x-6">
+        <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-6">
           {students.map((s) => (
             <a
               key={s.url}
